@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$MELON Tools — Regret Calculator, Certificate & Tweet Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: #0d0d0d;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .topnav {
+    background: #0d0d0d;
+    border-bottom: 1px solid #1e1a16;
+    padding: 0.8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topnav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #e8e0d0;
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+  .topnav-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: #5a5040;
+    text-decoration: none;
+    letter-spacing: 2px;
+    transition: color 0.15s;
+  }
+  .topnav-back:hover { color: #e8e0d0; }
+
+  /* WARNING BAR */
+  .warning-bar {
+    background: #ff3b00;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.4rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .warning-scroll {
+    display: inline-block;
+    animation: scrollWarn 30s linear infinite;
+  }
+  @keyframes scrollWarn {
+    from { transform: translateX(100vw); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .page-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.8rem;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-header p {
+    font-size: 0.85rem;
+    color: #5a5040;
+    font-style: italic;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #5a5040;
+    margin-bottom: 1.2rem;
+  }
+
+  .tool-block {
+    margin-bottom: 4rem;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #1e1a16;
+    margin: 4rem 0;
+  }
+
+  /* CARDS */
+  .card {
+    background: #111009;
+    border: 1px solid #2a2520;
+    border-radius: 14px;
+    padding: 2rem;
+  }
+
+  /* ===================== */
+  /* REGRET CALCULATOR     */
+  /* ===================== */
+  .calc-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .calc-label {
+    font-size: 0.75rem;
+    color: #5a5040;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 0 0 140px;
+  }
+
+  .calc-input {
+    background: #0d0d0d;
+    border: 1px solid #2a2520;
+    border-radius: 6px;
+    color: #e8e0d0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    width: 160px;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .calc-input::-webkit-outer-spin-button,
+  .calc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .calc-input:focus { outline: none; border-color: #ff6b00; }
+
+  .calc-btn {
+    background: #ff3b00;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 0.8rem 2rem;
+    cursor: pointer;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .calc-btn:hover { background: #cc2f00; }
+  .calc-btn:active { transform: scale(0.98); }
+
+  .regret-result {
+    display: none;
+    margin-top: 2rem;
+    border-top: 1px solid #1e1a16;
+    padding-top: 2rem;
+  }
+
+  .regret-result.show { display: block; }
+
+  .regret-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #ff3b00;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .regret-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .regret-cell {
+    background: #0d0d0d;
+    border: 1px solid #1e1a16;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .regret-cell-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #e8e0d0;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .regret-cell-val.red { color: #ff3b00; }
+  .regret-cell-val.orange { color: #ff6b00; }
+
+  .regret-cell-lbl {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #3a3028;
+  }
+
+  .regret-instead {
+    background: #0d0d0d;
+    border: 1px solid #1e1a16;
+    border-radius: 8px;
+    padding: 1.2rem;
+  }
+
+  .regret-instead-title {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #5a5040;
+    margin-bottom: 0.8rem;
+  }
+
+  .instead-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #1a1610;
+    font-size: 0.82rem;
+    color: #8a7d6a;
+  }
+  .instead-item:last-child { border-bottom: none; }
+  .instead-emoji { font-size: 1.1rem; flex-shrink: 0; }
+
+  .regret-footnote {
+    font-size: 0.7rem;
+    color: #3a3028;
+    font-style: italic;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  /* ===================== */
+  /* TWEET GENERATOR       */
+  /* ===================== */
+  .tweet-card {
+    background: #111009;
+    border: 1px solid #2a2520;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .tweet-header {
+    padding: 1.5rem 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .tweet-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2a4a1a, #1a3a0a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    border: 2px solid #2a2520;
+  }
+
+  .tweet-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #e8e0d0;
+  }
+
+  .tweet-handle {
+    font-size: 0.78rem;
+    color: #5a5040;
+    margin-top: 0.1rem;
+  }
+
+  .tweet-verified {
+    display: inline-block;
+    background: #ff6b00;
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .tweet-body {
+    padding: 1.2rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #e8e0d0;
+    min-height: 80px;
+    transition: opacity 0.2s;
+  }
+
+  .tweet-body.fading { opacity: 0; }
+
+  .tweet-footer {
+    padding: 0.8rem 1.5rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #1e1a16;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .tweet-stats {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .tweet-stat {
+    font-size: 0.75rem;
+    color: #3a3028;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .tweet-stat span { color: #5a5040; }
+
+  .tweet-time {
+    font-size: 0.7rem;
+    color: #3a3028;
+  }
+
+  .tweet-gen-btn {
+    background: transparent;
+    border: 1px solid #2a2520;
+    border-radius: 6px;
+    color: #8a7d6a;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.15s;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .tweet-gen-btn:hover { border-color: #5a5040; color: #e8e0d0; }
+  .tweet-gen-btn:active { transform: scale(0.98); }
+
+  /* ===================== */
+  /* CERTIFICATE           */
+  /* ===================== */
+  .cert-controls {
+    margin-bottom: 1.5rem;
+  }
+
+  .cert-name-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .cert-input {
+    background: #0d0d0d;
+    border: 1px solid #2a2520;
+    border-radius: 6px;
+    color: #e8e0d0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    flex: 1;
+    min-width: 200px;
+    transition: border-color 0.15s;
+  }
+  .cert-input:focus { outline: none; border-color: #ff6b00; }
+  .cert-input::placeholder { color: #3a3028; }
+
+  .cert-gen-btn {
+    background: transparent;
+    border: 1px solid #ff6b00;
+    border-radius: 6px;
+    color: #ff6b00;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .cert-gen-btn:hover { background: #ff6b00; color: #fff; }
+
+  /* THE CERTIFICATE */
+  .certificate {
+    background: #fffdf8;
+    border: 3px solid #1a1510;
+    border-radius: 4px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .cert-top-bar {
+    background: #0d0d0d;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cert-top-text {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #3a3028;
+    text-transform: uppercase;
+  }
+
+  .cert-body {
+    padding: 2.5rem 3rem;
+    text-align: center;
+    color: #1a1510;
+  }
+
+  .cert-melon { font-size: 3.5rem; display: block; margin-bottom: 0.8rem; }
+
+  .cert-presents {
+    font-size: 0.6rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #8a7d6a;
+    margin-bottom: 0.8rem;
+  }
+
+  .cert-title-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+    color: #1a1510;
+    margin-bottom: 0.3rem;
+  }
+
+  .cert-recipient-label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: #8a7d6a;
+    text-transform: uppercase;
+    margin: 1rem 0 0.4rem;
+  }
+
+  .cert-recipient-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: #ff3b00;
+    margin-bottom: 0.8rem;
+    word-break: break-word;
+  }
+
+  .cert-body-text {
+    font-size: 0.72rem;
+    color: #5a5040;
+    line-height: 1.8;
+    max-width: 380px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .cert-border-line {
+    border: none;
+    border-top: 1px solid #ddd8cc;
+    margin: 1.2rem 0;
+  }
+
+  .cert-sigs {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .cert-sig {
+    text-align: center;
+  }
+
+  .cert-sig-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a1510;
+    margin-bottom: 0.2rem;
+  }
+
+  .cert-sig-role {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8a7d6a;
+  }
+
+  .cert-bottom-bar {
+    background: #0d0d0d;
+    padding: 0.6rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cert-bottom-text {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: #2a2520;
+    text-transform: uppercase;
+  }
+
+  .cert-id {
+    font-size: 0.55rem;
+    color: #2a2520;
+    letter-spacing: 1px;
+  }
+
+  .cert-screenshot-hint {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    color: #3a3028;
+    font-style: italic;
+  }
+
+  .cert-stamp {
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%) rotate(15deg);
+    border: 3px solid rgba(255, 59, 0, 0.3);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 59, 0, 0.3);
+    text-align: center;
+    line-height: 1.3;
+    pointer-events: none;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid #1e1a16;
+    margin-top: 3rem;
+    font-size: 0.72rem;
+    color: #3a3028;
+    line-height: 1.9;
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-logo">🍈 $MELON</a>
+  <a href="index.html" class="topnav-back">← BACK TO SITE</a>
+</nav>
+
+<div class="warning-bar">
+  <span class="warning-scroll">
+    ⚠️ ADVANCED REGRET TECHNOLOGY™ LOADING &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; DO NOT BUY $MELON &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; CERTIFICATE IS NOT LEGAL TENDER &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; MELON TUSK IS NOT RESPONSIBLE FOR ANYTHING &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; DUCK APPROVED &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; ⚠️
+  </span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <h1>🍈 The Melon Tools</h1>
+    <p>Three tools. Zero utility. Maximum regret.</p>
+  </div>
+
+  <!-- ========================= -->
+  <!-- TOOL 1: REGRET CALCULATOR -->
+  <!-- ========================= -->
+  <div class="tool-block">
+    <p class="section-label">Tool 01 — Advanced Regret Technology™</p>
+    <div class="card">
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; margin-bottom:0.3rem;">Regret Calculator</div>
+        <div style="font-size:0.78rem; color:#5a5040; font-style:italic;">Enter what you spent on $MELON. Discover what you could have had instead.</div>
+      </div>
+
+      <div class="calc-row">
+        <div class="calc-label">Amount spent</div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="color:#5a5040; font-size:0.9rem;">€</span>
+          <input class="calc-input" type="number" id="calcAmount" placeholder="420" min="0" />
+        </div>
+      </div>
+
+      <div class="calc-row">
+        <div class="calc-label">When you bought</div>
+        <select class="calc-input" id="calcWhen" style="width:200px; cursor:pointer;">
+          <option value="peak">At peak (classic)</option>
+          <option value="dip">During "the dip"</option>
+          <option value="3am">At 3am on a Tuesday</option>
+          <option value="influencer">After seeing an influencer</option>
+          <option value="dream">I had a dream about it</option>
+        </select>
+      </div>
+
+      <button class="calc-btn" onclick="calculateRegret()">CALCULATE MY REGRET →</button>
+
+      <div class="regret-result" id="regretResult">
+        <div class="regret-headline" id="regretHeadline"></div>
+        <div class="regret-grid">
+          <div class="regret-cell">
+            <span class="regret-cell-val red" id="regretLost"></span>
+            <span class="regret-cell-lbl">Amount Lost</span>
+          </div>
+          <div class="regret-cell">
+            <span class="regret-cell-val orange" id="regretPct"></span>
+            <span class="regret-cell-lbl">Portfolio Change</span>
+          </div>
+        </div>
+        <div class="regret-instead">
+          <div class="regret-instead-title">What you could have bought instead</div>
+          <div id="insteadList"></div>
+        </div>
+        <p class="regret-footnote" id="regretQuote"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ========================= -->
+  <!-- TOOL 2: TWEET GENERATOR   -->
+  <!-- ========================= -->
+  <div class="tool-block">
+    <p class="section-label">Tool 02 — @MelonTusk Dispatch</p>
+
+    <div class="tweet-card">
+      <div class="tweet-header">
+        <div class="tweet-avatar">🍈</div>
+        <div>
+          <div class="tweet-name">Melon Tusk <span class="tweet-verified">VERIFIED</span></div>
+          <div class="tweet-handle">@MelonTusk · melon coin founder · do not buy</div>
+        </div>
+      </div>
+      <div class="tweet-body" id="tweetBody">
+        Woke up at 3am with an important announcement. The announcement is that melons are undervalued. That's it. That's the announcement. $MELON 🍈
+      </div>
+      <div class="tweet-footer">
+        <div class="tweet-stats">
+          <div class="tweet-stat">💬 <span id="tweetReplies">247</span></div>
+          <div class="tweet-stat">🔁 <span id="tweetRetweets">1.2K</span></div>
+          <div class="tweet-stat">❤️ <span id="tweetLikes">69.4K</span></div>
+        </div>
+        <div class="tweet-time" id="tweetTime">3:47 AM · from a hotel room</div>
+      </div>
+    </div>
+
+    <button class="tweet-gen-btn" onclick="generateTweet()">🍈 GENERATE NEW TWEET →</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ========================= -->
+  <!-- TOOL 3: CERTIFICATE       -->
+  <!-- ========================= -->
+  <div class="tool-block">
+    <p class="section-label">Tool 03 — Official Documentation</p>
+
+    <div class="cert-controls card" style="margin-bottom:1.5rem;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; margin-bottom:0.3rem;">Certificate Generator</div>
+      <div style="font-size:0.78rem; color:#5a5040; font-style:italic; margin-bottom:1.2rem;">Enter your name, screenshot the certificate, send to everyone you know.</div>
+      <div class="cert-name-row">
+        <input class="cert-input" type="text" id="certName" placeholder="Your name here..." maxlength="30" />
+        <button class="cert-gen-btn" onclick="generateCert()">GENERATE →</button>
+      </div>
+    </div>
+
+    <div class="certificate" id="certificate">
+      <div class="cert-top-bar">
+        <span class="cert-top-text">Melon Tusk Industries — Official Document</span>
+        <span class="cert-top-text">$MELON · 2025</span>
+      </div>
+      <div class="cert-body">
+        <span class="cert-melon">🍈</span>
+        <div class="cert-presents">Melon Tusk Industries Proudly Presents</div>
+        <div class="cert-title-text">Certificate of Survival</div>
+        <div style="font-size:0.7rem; color:#8a7d6a; font-style:italic; margin-bottom:0.5rem;">This is to certify that</div>
+        <div class="cert-recipient-label">The Incredibly Brave Holder</div>
+        <div class="cert-recipient-name" id="certRecipient">YOUR NAME</div>
+        <div class="cert-body-text">
+          has survived the full $MELON experience — including but not limited to: the hype,
+          the dip, the other dip, the "this is fine" phase, the Cyberduck™ quacking at 2am,
+          and the moment of clarity that came approximately three weeks too late.
+          <br><br>
+          They did not panic sell. Or they did. Either way, they're still here.
+          That counts for something.
+        </div>
+        <hr class="cert-border-line">
+        <div class="cert-sigs">
+          <div class="cert-sig">
+            <div class="cert-sig-name">Melon Tusk</div>
+            <div class="cert-sig-role">Founder & Chief Regret Officer</div>
+          </div>
+          <div style="font-size:2rem; padding-bottom:0.3rem;">🦆</div>
+          <div class="cert-sig">
+            <div class="cert-sig-name">Tusla Cyberduck™</div>
+            <div class="cert-sig-role">Chief Oracle · Quack on file</div>
+          </div>
+        </div>
+      </div>
+      <div class="cert-bottom-bar">
+        <span class="cert-bottom-text">Not financial advice · Not legal advice · Not even good advice</span>
+        <span class="cert-id" id="certId">MELON-00001</span>
+      </div>
+    </div>
+    <p class="cert-screenshot-hint">📸 Screenshot this and send it to your financial advisor.</p>
+  </div>
+
+</div>
+
+<footer>
+  🍈 $MELON Tools · by Melon Tusk Industries<br>
+  <span style="color:#2a2520;">All regret is your own. The duck is not liable. Do not buy.</span>
+</footer>
+
+<script>
+/* =================== */
+/* REGRET CALCULATOR   */
+/* =================== */
+function calculateRegret() {
+  const amount = parseFloat(document.getElementById('calcAmount').value);
+  const when = document.getElementById('calcWhen').value;
+  if (!amount || amount <= 0) {
+    document.getElementById('calcAmount').style.borderColor = '#ff3b00';
+    setTimeout(() => document.getElementById('calcAmount').style.borderColor = '#2a2520', 1500);
+    return;
+  }
+
+  const lossRates = { peak: 0.97, dip: 0.89, '3am': 0.94, influencer: 0.98, dream: 0.91 };
+  const lost = amount * lossRates[when];
+  const remaining = amount - lost;
+  const pct = -(lossRates[when] * 100).toFixed(0);
+
+  const whenLabels = {
+    peak: 'You bought at the peak. Impressive. Statistically difficult to do that badly by accident.',
+    dip: 'You bought "the dip." It kept dipping. They all keep dipping.',
+    '3am': 'You made a major financial decision at 3am on a Tuesday. Respect.',
+    influencer: 'An influencer told you to buy. The influencer has since deleted their account.',
+    dream: 'You made an investment decision based on a dream. We have nothing to add.'
+  };
+
+  const insteadItems = getInsteadItems(amount);
+
+  document.getElementById('regretHeadline').textContent =
+    `You spent €${amount.toFixed(2)} on $MELON. You now have €${remaining.toFixed(2)} worth of $MELON. The rest is a memory.`;
+  document.getElementById('regretLost').textContent = `€${lost.toFixed(2)}`;
+  document.getElementById('regretPct').textContent = `${pct}%`;
+  document.getElementById('regretQuote').textContent = whenLabels[when];
+
+  const list = document.getElementById('insteadList');
+  list.innerHTML = '';
+  insteadItems.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'instead-item';
+    div.innerHTML = `<span class="instead-emoji">${item.emoji}</span><span>${item.text}</span>`;
+    list.appendChild(div);
+  });
+
+  document.getElementById('regretResult').classList.add('show');
+}
+
+function getInsteadItems(amount) {
+  const all = [
+    { min: 1,    emoji: '☕', text: () => `${Math.floor(amount/3)} coffees` },
+    { min: 5,    emoji: '🍕', text: () => `${Math.floor(amount/12)} large pizzas` },
+    { min: 10,   emoji: '🍉', text: () => `${Math.floor(amount/2)} actual real melons (irony noted)` },
+    { min: 20,   emoji: '🎬', text: () => `${Math.floor(amount/15)} cinema tickets` },
+    { min: 50,   emoji: '📚', text: () => `${Math.floor(amount/20)} books about how not to do this` },
+    { min: 100,  emoji: '✈️', text: () => `a flight somewhere nice` },
+    { min: 200,  emoji: '🎸', text: () => `a beginner guitar and lessons` },
+    { min: 500,  emoji: '💻', text: () => `a decent laptop` },
+    { min: 1000, emoji: '🏝️', text: () => `a week in a nice hotel` },
+    { min: 5000, emoji: '🚗', text: () => `a used car that would actually take you places` },
+  ];
+
+  return all
+    .filter(i => amount >= i.min)
+    .slice(-4)
+    .reverse()
+    .map(i => ({ emoji: i.emoji, text: i.text() }));
+}
+
+
+/* =================== */
+/* TWEET GENERATOR     */
+/* =================== */
+const tweets = [
+  "Woke up at 3am with an important announcement. The announcement is that melons are undervalued. That's it. That's the announcement. $MELON 🍈",
+  "To everyone saying $MELON has no utility: you also have no utility and we don't talk about that. Hodl.",
+  "Just got off a call with a very important person. Can't say who. They were very impressed. The call was with my mom. She said the logo was nice. $MELON 🍈",
+  "The Cyberduck™ has been quacking for 11 days straight. We have moved to a different building. The new building is not far enough. $MELON",
+  "Someone asked me what the vision for $MELON is. I said 'unclear.' They said 'bold.' I said 'thank you.' We shook hands. Big things coming. 🍈",
+  "I don't know what a blockchain is. I never have. I'm not going to look it up. $MELON 🚀",
+  "Just hired a raccoon as our Chief Analyst. He brought his own clipboard. He seems to know what he's doing. More than us anyway. $MELON",
+  "Paper hands are leaving. Diamond hands are staying. My hands are melon hands. I don't know what that means but it sounds good. $MELON 🍈",
+  "The whitepaper is 12 pages. Page 2 is a picture of a melon. Pages 3–11 are the explanation of page 2. Page 12 says do not buy. We are proud of it.",
+  "Market is down. $MELON is also down. Everything is down. The raccoon is eating a sandwich and seems unconcerned. I envy him.",
+  "Some people say memecoins are a bad investment. Those people are correct. We said this on our own website. We said it multiple times. $MELON",
+  "Big partnership announcement coming soon™. It is with a duck. You already know the duck. The duck is not excited but we are. $MELON 🦆",
+  "If you're reading this at 3am considering buying $MELON: close the app. Drink some water. Go to sleep. We will still be here tomorrow. Somehow.",
+  "We did not do a SWOT analysis. We did a MELON analysis. Memes, Enthusiasm, Losses, Optimism, and Nothing else. Results were inconclusive. $MELON",
+  "Asked the Cyberduck™ for a price prediction. It quacked 47 times and then fell off the desk. We are interpreting this as bullish. 🦆 $MELON",
+  "gm to everyone except the people who sold. you know who you are. we still love you. but we know. $MELON 🍈",
+  "Someone called $MELON a 'financial instrument.' That is the nicest thing anyone has ever said about us. We framed it. It's on the wall now.",
+  "The community is suspiciously confident for people who bought a coin named after a fruit at 3am. Respect. We are all in this together. $MELON",
+];
+
+const times = [
+  '3:47 AM · from a hotel room',
+  '2:13 AM · via Cyberduck™ app',
+  '4:02 AM · while eating a melon',
+  '1:37 AM · definitely not panicking',
+  '3:59 AM · from an undisclosed location',
+  '2:48 AM · sent from my raccoon\'s laptop',
+  '5:11 AM · can\'t sleep',
+  '12:00 AM · the vibes said post',
+];
+
+function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function formatNum(n) {
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function generateTweet() {
+  const body = document.getElementById('tweetBody');
+  body.classList.add('fading');
+  setTimeout(() => {
+    const tweet = tweets[Math.floor(Math.random() * tweets.length)];
+    body.textContent = tweet;
+    document.getElementById('tweetReplies').textContent = formatNum(randomInt(12, 890));
+    document.getElementById('tweetRetweets').textContent = formatNum(randomInt(200, 9800));
+    document.getElementById('tweetLikes').textContent = formatNum(randomInt(1000, 99000));
+    document.getElementById('tweetTime').textContent = times[Math.floor(Math.random() * times.length)];
+    body.classList.remove('fading');
+  }, 200);
+}
+
+/* =================== */
+/* CERTIFICATE         */
+/* =================== */
+function generateCert() {
+  const name = document.getElementById('certName').value.trim() || 'A Brave Holder';
+  document.getElementById('certRecipient').textContent = name;
+  const id = 'MELON-' + String(Math.floor(Math.random() * 99999)).padStart(5, '0');
+  document.getElementById('certId').textContent = id;
+  document.getElementById('certificate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Generate on Enter key
+document.getElementById('certName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') generateCert();
+});
+document.getElementById('calcAmount').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculateRegret();
+});
+</script>
+</body>
+</html>
