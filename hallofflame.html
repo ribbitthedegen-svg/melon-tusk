@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$MELON — Hall of Lame</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: #0d0d0d;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .topnav {
+    background: #0d0d0d;
+    border-bottom: 1px solid #1e1a16;
+    padding: 0.8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topnav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:#e8e0d0; text-decoration:none; letter-spacing:1px; }
+  .topnav-back { font-family:'Space Mono',monospace; font-size:0.75rem; color:#5a5040; text-decoration:none; letter-spacing:2px; transition:color 0.15s; }
+  .topnav-back:hover { color:#e8e0d0; }
+
+  .warning-bar { background:#ff3b00; color:#fff; font-size:0.75rem; font-weight:700; padding:0.4rem 0; overflow:hidden; white-space:nowrap; }
+  .warning-scroll { display:inline-block; animation:scrollWarn 28s linear infinite; }
+  @keyframes scrollWarn { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+  .container { max-width:860px; margin:0 auto; padding:3rem 1.5rem 6rem; }
+
+  /* HEADER */
+  .page-header { text-align:center; margin-bottom:3rem; }
+  .header-trophy { font-size:4rem; display:block; margin-bottom:1rem; animation:wobble 4s ease-in-out infinite; }
+  @keyframes wobble {
+    0%,100%{transform:rotate(-5deg) scale(1)}
+    50%{transform:rotate(5deg) scale(1.06)}
+  }
+  .page-header h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:2.8rem; letter-spacing:-1px; margin-bottom:0.4rem; }
+  .page-header p { font-size:0.82rem; color:#5a5040; font-style:italic; }
+
+  .divider { border:none; border-top:1px solid #1e1a16; margin:2.5rem 0; }
+
+  /* SUBMIT FORM */
+  .form-card {
+    background:#111009; border:1px solid #2a2520; border-radius:14px; padding:2rem; margin-bottom:2.5rem;
+  }
+  .form-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; margin-bottom:0.3rem; }
+  .form-subtitle { font-size:0.75rem; color:#5a5040; font-style:italic; margin-bottom:1.8rem; }
+
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+  @media(max-width:560px){ .form-grid{ grid-template-columns:1fr; } }
+
+  .form-group { display:flex; flex-direction:column; gap:0.4rem; }
+  .form-label { font-size:0.62rem; letter-spacing:3px; text-transform:uppercase; color:#5a5040; }
+
+  .form-input, .form-select, .form-textarea {
+    background:#0d0d0d; border:1px solid #2a2520; border-radius:6px;
+    color:#e8e0d0; font-family:'Space Mono',monospace; font-size:0.85rem;
+    padding:0.65rem 1rem; transition:border-color 0.15s; width:100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:#ff6b00; }
+  .form-input::placeholder, .form-textarea::placeholder { color:#3a3028; }
+  .form-select { cursor:pointer; }
+  .form-textarea { resize:vertical; min-height:72px; }
+
+  .form-full { grid-column:1/-1; }
+
+  .submit-btn {
+    background:#ff3b00; border:none; border-radius:8px; color:#fff;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+    padding:0.9rem 2rem; cursor:pointer; letter-spacing:2px;
+    width:100%; margin-top:0.5rem; transition:all 0.15s;
+  }
+  .submit-btn:hover { background:#cc2f00; }
+  .submit-btn:active { transform:scale(0.98); }
+  .submit-btn:disabled { background:#2a2520; color:#5a5040; cursor:not-allowed; transform:none; }
+
+  .form-note { font-size:0.65rem; color:#3a3028; font-style:italic; text-align:center; margin-top:0.8rem; }
+
+  /* STATS BAR */
+  .stats-bar {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    border:1px solid #2a2520; border-radius:10px; overflow:hidden; margin-bottom:2rem;
+  }
+  .stat-cell { padding:1.2rem; text-align:center; border-right:1px solid #2a2520; }
+  .stat-cell:last-child { border-right:none; }
+  .stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; color:#e8e0d0; display:block; margin-bottom:0.3rem; }
+  .stat-val.red { color:#ff3b00; }
+  .stat-val.orange { color:#ff6b00; }
+  .stat-lbl { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:#3a3028; }
+
+  /* LEADERBOARD */
+  .section-label { font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:5px; text-transform:uppercase; color:#5a5040; margin-bottom:1.2rem; }
+
+  .board { display:flex; flex-direction:column; gap:0.8rem; }
+
+  .entry {
+    background:#111009; border:1px solid #2a2520; border-radius:12px;
+    padding:1.2rem 1.5rem; display:flex; align-items:flex-start; gap:1.2rem;
+    transition:border-color 0.2s; animation:fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .entry:hover { border-color:#3a3028; }
+
+  .entry.rank-1 { border-color:#ff6b00; background:#150e08; }
+  .entry.rank-2 { border-color:#5a5040; }
+  .entry.rank-3 { border-color:#3a3028; }
+
+  .entry-rank {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem;
+    flex-shrink:0; width:36px; text-align:center; padding-top:0.1rem;
+  }
+  .rank-1 .entry-rank { color:#ff6b00; }
+  .rank-2 .entry-rank { color:#8a7d6a; }
+  .rank-3 .entry-rank { color:#5a5040; }
+
+  .entry-body { flex:1; min-width:0; }
+  .entry-top { display:flex; align-items:baseline; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.4rem; }
+  .entry-name { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:#e8e0d0; }
+  .entry-badge {
+    font-size:0.6rem; letter-spacing:2px; text-transform:uppercase;
+    padding:0.2rem 0.6rem; border-radius:4px; font-weight:700;
+  }
+  .badge-holding  { background:rgba(255,107,0,0.15); color:#ff6b00; border:1px solid rgba(255,107,0,0.3); }
+  .badge-sold     { background:rgba(255,59,0,0.15); color:#ff3b00; border:1px solid rgba(255,59,0,0.3); }
+  .badge-denial   { background:rgba(90,80,64,0.3); color:#8a7d6a; border:1px solid #3a3028; }
+  .badge-void     { background:rgba(26,21,16,0.5); color:#3a3028; border:1px solid #2a2520; }
+
+  .entry-amount { font-size:0.78rem; color:#5a5040; margin-bottom:0.5rem; }
+  .entry-amount strong { color:#ff3b00; }
+  .entry-cope { font-size:0.82rem; color:#8a7d6a; font-style:italic; line-height:1.6; }
+  .entry-time { font-size:0.6rem; color:#2a2520; margin-top:0.4rem; }
+
+  .entry-crown { font-size:1.4rem; flex-shrink:0; align-self:center; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:4rem 2rem; color:#3a3028; }
+  .empty-state .empty-icon { font-size:3rem; display:block; margin-bottom:1rem; }
+  .empty-state p { font-size:0.82rem; line-height:1.8; }
+
+  /* LOADING */
+  .loading-state { text-align:center; padding:3rem; }
+  .loading-dots { display:inline-flex; gap:0.4rem; }
+  .loading-dots span {
+    width:8px; height:8px; border-radius:50%; background:#3a3028;
+    animation:pulse 1.2s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2){animation-delay:0.2s}
+  .loading-dots span:nth-child(3){animation-delay:0.4s}
+  @keyframes pulse{0%,80%,100%{opacity:0.3}40%{opacity:1}}
+
+  .toast {
+    position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(120px);
+    background:#1e1a16; border:1px solid #2a2520; color:#e8e0d0;
+    font-family:'Space Mono',monospace; font-size:0.82rem; padding:1rem 2rem;
+    border-radius:8px; transition:transform 0.3s; z-index:100;
+    text-align:center; max-width:340px; width:90%;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+  .toast.success { border-color:#ff6b00; }
+  .toast.error { border-color:#ff3b00; }
+
+  footer { text-align:center; padding-top:2rem; border-top:1px solid #1e1a16; margin-top:3rem; font-size:0.7rem; color:#2a2520; line-height:1.9; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-logo">🍈 $MELON</a>
+  <a href="index.html" class="topnav-back">← BACK TO SITE</a>
+</nav>
+
+<div class="warning-bar">
+  <span class="warning-scroll">
+    🏆 HALL OF LAME &nbsp;•&nbsp; RANKED BY COMMITMENT TO THE BIT &nbsp;•&nbsp; DO NOT BUY $MELON &nbsp;•&nbsp; THE DUCK IS JUDGING YOU &nbsp;•&nbsp; WAGMI (PROBABLY) &nbsp;•&nbsp; FIRST PLACE = MOST LAME &nbsp;•&nbsp; 🏆 HALL OF LAME &nbsp;•&nbsp; YOUR LOSS IS OUR CONTENT &nbsp;•&nbsp;
+  </span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <span class="header-trophy">🏆</span>
+    <h1>Hall of Lame</h1>
+    <p>ranked by biggest loss · first place = most committed to the bit · the duck is watching</p>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <span class="stat-val red" id="statTotal">—</span>
+      <span class="stat-lbl">Total Lost</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val" id="statEntries">—</span>
+      <span class="stat-lbl">Brave Souls</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val orange" id="statBiggest">—</span>
+      <span class="stat-lbl">Biggest Loss</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val" id="statStatus">—</span>
+      <span class="stat-lbl">Still Holding</span>
+    </div>
+  </div>
+
+  <!-- SUBMIT FORM -->
+  <div class="form-card">
+    <div class="form-title">🍈 Submit Your Lament</div>
+    <div class="form-subtitle">confess. the community needs to know. the duck already knows.</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Your Name / Alias</label>
+        <input class="form-input" type="text" id="inputName" placeholder="CryptoWizard69" maxlength="30" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount Invested (€)</label>
+        <input class="form-input" type="number" id="inputAmount" placeholder="420" min="0" max="999999" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Status</label>
+        <select class="form-select" id="inputStatus">
+          <option value="holding">💎 Holding Strong (delusional)</option>
+          <option value="sold">📉 Panic Sold (coward)</option>
+          <option value="denial">🙈 In Denial (relatable)</option>
+          <option value="void">🌌 Sent It To The Void</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">One Line of Cope</label>
+        <input class="form-input" type="text" id="inputCope" placeholder="it's a long term investment" maxlength="120" />
+      </div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitEntry()">🏆 CLAIM MY SHAME →</button>
+    <p class="form-note">entries are public and eternal. the duck never forgets. do not buy $MELON.</p>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <p class="section-label">The Fallen — Ranked By Loss</p>
+  <div id="boardContainer">
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p style="margin-top:1rem; font-size:0.75rem; color:#3a3028;">loading the laments...</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  🍈 $MELON Hall of Lame · by Melon Tusk Industries<br>
+  <span>all losses are real. all cope is valid. the duck is not liable.</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'melon_hall_of_lame_v1';
+
+const badgeMap = {
+  holding: { cls:'badge-holding', label:'💎 Holding Strong' },
+  sold:    { cls:'badge-sold',    label:'📉 Panic Sold' },
+  denial:  { cls:'badge-denial',  label:'🙈 In Denial' },
+  void:    { cls:'badge-void',    label:'🌌 Sent To Void' },
+};
+
+const rankDisplay = ['👑', '🥈', '🥉'];
+
+let entries = [];
+let toastTimer;
+
+async function loadEntries() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    entries = result ? JSON.parse(result.value) : [];
+  } catch(e) {
+    entries = [];
+  }
+  renderBoard();
+}
+
+async function saveEntries() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(entries), true);
+  } catch(e) {
+    showToast('Storage error. The void took your entry.', 'error');
+  }
+}
+
+function renderBoard() {
+  const sorted = [...entries].sort((a,b) => b.amount - a.amount);
+  updateStats(sorted);
+
+  const container = document.getElementById('boardContainer');
+
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🦆</span>
+        <p>No entries yet. Be the first to confess.<br>
+        The duck is waiting. It has been waiting for a while.<br>
+        It does not mind waiting.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  const board = document.createElement('div');
+  board.className = 'board';
+
+  sorted.forEach((entry, i) => {
+    const badge = badgeMap[entry.status] || badgeMap.holding;
+    const rankClass = i < 3 ? `rank-${i+1}` : '';
+    const rankLabel = i < 3 ? rankDisplay[i] : `#${i+1}`;
+    const isFirst = i === 0;
+
+    const div = document.createElement('div');
+    div.className = `entry ${rankClass}`;
+    div.innerHTML = `
+      <div class="entry-rank">${rankLabel}</div>
+      <div class="entry-body">
+        <div class="entry-top">
+          <span class="entry-name">${escHtml(entry.name)}</span>
+          <span class="entry-badge ${badge.cls}">${badge.label}</span>
+        </div>
+        <div class="entry-amount">invested <strong>€${Number(entry.amount).toLocaleString()}</strong>${entry.amount > 0 ? ' into a coin named after a fruit' : ''}</div>
+        ${entry.cope ? `<div class="entry-cope">"${escHtml(entry.cope)}"</div>` : ''}
+        <div class="entry-time">${formatTime(entry.ts)}</div>
+      </div>
+      ${isFirst ? '<div class="entry-crown">👑</div>' : ''}
+    `;
+    board.appendChild(div);
+  });
+
+  container.appendChild(board);
+}
+
+function updateStats(sorted) {
+  const total = sorted.reduce((s,e) => s + Number(e.amount), 0);
+  const biggest = sorted.length ? sorted[0].amount : 0;
+  const holding = sorted.filter(e => e.status === 'holding').length;
+
+  document.getElementById('statTotal').textContent = `€${total.toLocaleString()}`;
+  document.getElementById('statEntries').textContent = sorted.length;
+  document.getElementById('statBiggest').textContent = biggest ? `€${Number(biggest).toLocaleString()}` : '—';
+  document.getElementById('statStatus').textContent = holding;
+}
+
+async function submitEntry() {
+  const name   = document.getElementById('inputName').value.trim();
+  const amount = parseFloat(document.getElementById('inputAmount').value);
+  const status = document.getElementById('inputStatus').value;
+  const cope   = document.getElementById('inputCope').value.trim();
+
+  if (!name) { highlight('inputName'); showToast('We need a name. Even a fake one.', 'error'); return; }
+  if (isNaN(amount) || amount < 0) { highlight('inputAmount'); showToast('How much did you lose? Be honest.', 'error'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING...';
+
+  const entry = { name, amount, status, cope, ts: Date.now() };
+  entries.push(entry);
+  await saveEntries();
+  renderBoard();
+
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputAmount').value = '';
+  document.getElementById('inputCope').value = '';
+  document.getElementById('inputStatus').selectedIndex = 0;
+
+  btn.disabled = false;
+  btn.textContent = '🏆 CLAIM MY SHAME →';
+
+  const msgs = [
+    '🏆 Entry submitted. The duck has acknowledged your sacrifice.',
+    '🍈 You are now immortalised in lame. Congratulations.',
+    '📉 Your loss is now public record. The raccoon has noted it.',
+    '🦆 The duck quacked once upon receiving your entry. We think it was sympathy.',
+    '👑 Welcome to the Hall of Lame. You earned this.',
+  ];
+  showToast(msgs[Math.floor(Math.random() * msgs.length)], 'success');
+}
+
+function highlight(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = '#ff3b00';
+  setTimeout(() => el.style.borderColor = '#2a2520', 1500);
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 3500);
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) +
+    ' · ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadEntries();
+</script>
+</body>
+</html>
