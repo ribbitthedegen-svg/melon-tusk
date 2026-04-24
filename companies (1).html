@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melon Tusk Industries — The Empire</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: #0d0d0d;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .topnav { background:#0d0d0d; border-bottom:1px solid #1e1a16; padding:0.8rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+  .topnav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:#e8e0d0; text-decoration:none; letter-spacing:1px; }
+  .topnav-back { font-family:'Space Mono',monospace; font-size:0.75rem; color:#9a8a78; text-decoration:none; letter-spacing:2px; transition:color 0.15s; }
+  .topnav-back:hover { color:#e8e0d0; }
+
+  .warning-bar { background:#ff3b00; color:#fff; font-size:0.75rem; font-weight:700; padding:0.4rem 0; overflow:hidden; white-space:nowrap; }
+  .warning-scroll { display:inline-block; animation:scrollWarn 30s linear infinite; }
+  @keyframes scrollWarn { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+  .container { max-width:900px; margin:0 auto; padding:3rem 1.5rem 6rem; }
+
+  /* HEADER */
+  .empire-header {
+    text-align:center; padding:3rem 0 3.5rem;
+    border-bottom:1px solid #1e1a16; margin-bottom:3.5rem;
+  }
+
+  .empire-logo { font-size:3.5rem; display:block; margin-bottom:1rem; animation:spin 20s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  .empire-name {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:2.8rem;
+    letter-spacing:-1px; line-height:1; margin-bottom:0.5rem;
+  }
+
+  .empire-tagline { font-size:0.82rem; color:#9a8a78; font-style:italic; margin-bottom:1.5rem; }
+
+  .empire-stats {
+    display:inline-flex; gap:2rem; background:#111009;
+    border:1px solid #2a2520; border-radius:10px; padding:1rem 2rem;
+    flex-wrap:wrap; justify-content:center;
+  }
+
+  .empire-stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; color:#ff6b00; display:block; }
+  .empire-stat-lbl { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:#5a5040; }
+
+  /* COMPANY CARDS */
+  .companies { display:flex; flex-direction:column; gap:1.5rem; }
+
+  .company {
+    border:1px solid #2a2520; border-radius:16px; overflow:hidden;
+    background:#111009; transition:border-color 0.2s;
+  }
+
+  .company:hover { border-color:#3a3028; }
+  .company.flagship { border-color:#ff6b00; }
+
+  .company-hero {
+    padding:2.5rem 2rem 2rem;
+    display:flex; gap:2rem; align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .company-icon {
+    font-size:3.5rem; flex-shrink:0;
+    width:72px; height:72px; display:flex;
+    align-items:center; justify-content:center;
+    background:#0d0d0d; border:1px solid #2a2520;
+    border-radius:14px;
+  }
+
+  .company-info { flex:1; min-width:200px; }
+
+  .company-badge {
+    display:inline-block; font-size:0.55rem; letter-spacing:3px;
+    text-transform:uppercase; padding:0.2rem 0.7rem; border-radius:4px;
+    font-weight:700; margin-bottom:0.6rem;
+  }
+
+  .badge-live    { background:rgba(126,200,80,0.15); color:#7ec850; border:1px solid rgba(126,200,80,0.3); }
+  .badge-soon    { background:rgba(255,107,0,0.12); color:#ff6b00; border:1px solid rgba(255,107,0,0.25); }
+  .badge-unclear { background:rgba(154,138,120,0.15); color:#9a8a78; border:1px solid rgba(154,138,120,0.3); }
+  .badge-eating  { background:rgba(91,184,245,0.12); color:#5bb8f5; border:1px solid rgba(91,184,245,0.25); }
+
+  .company-name {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem;
+    letter-spacing:-0.5px; margin-bottom:0.3rem; line-height:1.1;
+  }
+
+  .company-category { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:#5a5040; margin-bottom:0.8rem; }
+
+  .company-desc { font-size:0.88rem; color:#b0a090; line-height:1.8; }
+
+  .company-body {
+    padding:0 2rem 2rem;
+  }
+
+  .company-divider { border:none; border-top:1px solid #1a1610; margin:1.2rem 0; }
+
+  .company-specs {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:0.8rem; margin-bottom:1.2rem;
+  }
+
+  .spec-cell {
+    background:#0d0d0d; border:1px solid #1e1a16; border-radius:8px;
+    padding:0.8rem; text-align:center;
+  }
+
+  .spec-val { font-family:'Syne',sans-serif; font-weight:800; font-size:0.95rem; color:#e8e0d0; display:block; margin-bottom:0.2rem; }
+  .spec-val.orange { color:#ff6b00; }
+  .spec-val.green  { color:#7ec850; }
+  .spec-val.blue   { color:#5bb8f5; }
+  .spec-lbl { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#5a5040; }
+
+  .company-features { margin-top:0.5rem; }
+
+  .feature-pill {
+    display:inline-block; font-size:0.68rem; padding:0.3rem 0.8rem;
+    border:1px solid #2a2520; border-radius:20px; color:#9a8a78;
+    margin:0.2rem; transition:all 0.15s;
+  }
+  .feature-pill:hover { border-color:#5a5040; color:#e8e0d0; }
+
+  .company-disclaimer {
+    font-size:0.65rem; color:#3a3028; font-style:italic;
+    margin-top:1rem; padding-top:1rem; border-top:1px solid #111009;
+  }
+
+  /* ORG CHART */
+  .org-section { margin-top:4rem; }
+  .org-title { font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:5px; text-transform:uppercase; color:#9a8a78; margin-bottom:1.5rem; }
+
+  .org-chart {
+    background:#111009; border:1px solid #2a2520; border-radius:14px; padding:2rem;
+    font-size:0.82rem; color:#b0a090; line-height:2.2;
+  }
+
+  .org-root { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:#e8e0d0; margin-bottom:0.5rem; }
+  .org-branch { padding-left:1.5rem; border-left:1px solid #2a2520; margin-left:0.5rem; }
+  .org-item { color:#b0a090; }
+  .org-item strong { color:#e8e0d0; }
+  .org-item em { color:#5a5040; }
+
+  footer { text-align:center; padding-top:2rem; border-top:1px solid #1e1a16; margin-top:4rem; font-size:0.7rem; color:#9a8a78; line-height:1.9; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-logo">🍈 $MELON</a>
+  <a href="index.html" class="topnav-back">← BACK TO SITE</a>
+</nav>
+
+<div class="warning-bar">
+  <span class="warning-scroll">
+    🏢 MELON TUSK INDUSTRIES &nbsp;•&nbsp; DISRUPTING EVERYTHING &nbsp;•&nbsp; RESULTS UNCLEAR &nbsp;•&nbsp; DO NOT BUY $MELON &nbsp;•&nbsp; STARBRINK SIGNAL STRENGTH: QUACK &nbsp;•&nbsp; SPACE SNÄX: FEEDING THE DUCK SINCE 2025 &nbsp;•&nbsp; 🏢 MELON TUSK INDUSTRIES &nbsp;•&nbsp;
+  </span>
+</div>
+
+<div class="container">
+
+  <div class="empire-header">
+    <span class="empire-logo">🍈</span>
+    <div class="empire-name">Melon Tusk Industries</div>
+    <p class="empire-tagline">disrupting everything. achieving unclear results. do not invest.</p>
+    <div class="empire-stats">
+      <div>
+        <span class="empire-stat-val">5</span>
+        <span class="empire-stat-lbl">Companies</span>
+      </div>
+      <div>
+        <span class="empire-stat-val">1</span>
+        <span class="empire-stat-lbl">Duck</span>
+      </div>
+      <div>
+        <span class="empire-stat-val">1</span>
+        <span class="empire-stat-lbl">Raccoon</span>
+      </div>
+      <div>
+        <span class="empire-stat-val">Unclear</span>
+        <span class="empire-stat-lbl">Valuation</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="companies">
+
+    <!-- MELON COIN -->
+    <div class="company flagship">
+      <div class="company-hero">
+        <div class="company-icon">🍈</div>
+        <div class="company-info">
+          <div class="company-badge badge-live">● Live</div>
+          <div class="company-name">Melon Coin</div>
+          <div class="company-category">Digital Asset · Solana · Memecoin</div>
+          <div class="company-desc">
+            The world's first fully self-sabotaging digital asset. Powered by hype, poor timing, and Advanced Regret Technology™. Launched at 2:47am on a Tuesday. We have no regrets. We have only $MELON.
+          </div>
+        </div>
+      </div>
+      <div class="company-body">
+        <div class="company-divider"></div>
+        <div class="company-specs">
+          <div class="spec-cell">
+            <span class="spec-val orange">$MELON</span>
+            <span class="spec-lbl">Ticker</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">1,000,000,000</span>
+            <span class="spec-lbl">Supply</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val green">0%</span>
+            <span class="spec-lbl">Dev Allocation</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">Unclear</span>
+            <span class="spec-lbl">Utility</span>
+          </div>
+        </div>
+        <div class="company-features">
+          <span class="feature-pill">⚡ Ultra-fast panic selling</span>
+          <span class="feature-pill">🧠 AI-driven losses</span>
+          <span class="feature-pill">📉 Emotional character development</span>
+          <span class="feature-pill">🦆 Duck oracle integration</span>
+          <span class="feature-pill">💎 Diamond hands optional</span>
+        </div>
+        <div class="company-disclaimer">
+          Not financial advice. Not any kind of advice. The duck is the closest thing we have to a financial advisor and it is not licensed.
+        </div>
+      </div>
+    </div>
+
+    <!-- TUSLA CYBERDUCK -->
+    <div class="company">
+      <div class="company-hero">
+        <div class="company-icon">🦆</div>
+        <div class="company-info">
+          <div class="company-badge badge-live">● Operational</div>
+          <div class="company-name">Tusla Cyberduck™</div>
+          <div class="company-category">Blockchain Oracle · Duck Technology · Quack-to-Earn™</div>
+          <div class="company-desc">
+            The world's first duck-shaped blockchain oracle. A rubber duck modified with a Raspberry Pi, some wires we found, and an inexplicable ability to predict market movements via quacking. It has been quacking continuously since launch. We have moved offices twice. We can still hear it.
+          </div>
+        </div>
+      </div>
+      <div class="company-body">
+        <div class="company-divider"></div>
+        <div class="company-specs">
+          <div class="spec-cell">
+            <span class="spec-val orange">Quack</span>
+            <span class="spec-lbl">Signal Protocol</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">1x Bullish</span>
+            <span class="spec-lbl">Quack = Buy</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">2x Bearish</span>
+            <span class="spec-lbl">Quacks = Sell</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val red" style="color:#ff3b00;">∞ Panic</span>
+            <span class="spec-lbl">Quacks = Run</span>
+          </div>
+        </div>
+        <div class="company-features">
+          <span class="feature-pill">🔮 Blockchain oracle</span>
+          <span class="feature-pill">🍿 Powered by Space Snäx</span>
+          <span class="feature-pill">💻 Raspberry Pi inside</span>
+          <span class="feature-pill">👁️ Never blinks</span>
+          <span class="feature-pill">📋 Peer reviewed by raccoon</span>
+          <span class="feature-pill">🏆 Chief Oracle Officer</span>
+        </div>
+        <div class="company-disclaimer">
+          Tusla Cyberduck™ is a registered trademark of a rubber duck we found in the office. It is not a licensed financial advisor. Its predictions are legally non-binding. We cannot stop it quacking.
+        </div>
+      </div>
+    </div>
+
+    <!-- STARBRINK -->
+    <div class="company">
+      <div class="company-hero">
+        <div class="company-icon">🛰️</div>
+        <div class="company-info">
+          <div class="company-badge badge-soon">◎ Coming Soon™</div>
+          <div class="company-name">Starbrink</div>
+          <div class="company-category">Satellite Internet · Quack Transmission · Melon Infrastructure</div>
+          <div class="company-desc">
+            Revolutionary satellite internet powered by a constellation of melon-shaped satellites in low Earth orbit. Signal is transmitted via digitally encoded duck quacks at frequencies only Tusla Cyberduck™ can fully interpret. Coverage depends entirely on vibes. Speeds peak during price pumps and degrade significantly during market corrections.
+          </div>
+        </div>
+      </div>
+      <div class="company-body">
+        <div class="company-divider"></div>
+        <div class="company-specs">
+          <div class="spec-cell">
+            <span class="spec-val blue">🛰️ 420</span>
+            <span class="spec-lbl">Melon Satellites</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val blue">Quack/s</span>
+            <span class="spec-lbl">Speed Unit</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">Most Areas</span>
+            <span class="spec-lbl">Coverage</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val orange">Vibe-Based</span>
+            <span class="spec-lbl">Latency</span>
+          </div>
+        </div>
+        <div class="company-features">
+          <span class="feature-pill">🛰️ Melon-shaped satellites</span>
+          <span class="feature-pill">🦆 Quack-encoded signal</span>
+          <span class="feature-pill">🌍 Global coverage (vibes permitting)</span>
+          <span class="feature-pill">📡 Duck-to-Earth protocol</span>
+          <span class="feature-pill">🚀 Launched from a melon farm</span>
+          <span class="feature-pill">📶 Signal strength: QUACK</span>
+        </div>
+        <div class="company-disclaimer">
+          Starbrink is not yet operational. The satellites are melon-shaped and currently on order. The quack transmission protocol is in beta. Coverage in your area is unclear. Do not cancel your existing internet provider yet. Or do. We are not responsible.
+        </div>
+      </div>
+    </div>
+
+    <!-- SPACE SNAX -->
+    <div class="company">
+      <div class="company-hero">
+        <div class="company-icon">🍿</div>
+        <div class="company-info">
+          <div class="company-badge badge-eating">🍿 Feeding The Duck</div>
+          <div class="company-name">Space Snäx</div>
+          <div class="company-category">Duck Nutrition · Zero-Gravity Snacking · Melon Flavoured Everything</div>
+          <div class="company-desc">
+            The official nutrition provider of Tusla Cyberduck™. Space Snäx develops and manufactures high-performance snack products engineered for peak oracle performance at zero gravity. Every product is melon-flavoured. There are no exceptions. The duck refused to eat anything else during product testing. We respected the duck's decision.
+          </div>
+        </div>
+      </div>
+      <div class="company-body">
+        <div class="company-divider"></div>
+        <div class="company-specs">
+          <div class="spec-cell">
+            <span class="spec-val orange">🍈 100%</span>
+            <span class="spec-lbl">Melon Content</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val green">+47%</span>
+            <span class="spec-lbl">Duck Quack Rate</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">Zero-G</span>
+            <span class="spec-lbl">Optimised For</span>
+          </div>
+          <div class="spec-cell">
+            <span class="spec-val">Duck Approved</span>
+            <span class="spec-lbl">Certification</span>
+          </div>
+        </div>
+
+        <div style="margin:1.2rem 0; background:#0d0d0d; border:1px solid #1e1a16; border-radius:10px; padding:1.2rem;">
+          <div style="font-size:0.62rem; letter-spacing:3px; text-transform:uppercase; color:#5a5040; margin-bottom:1rem;">Product Range</div>
+          <div style="display:flex; flex-direction:column; gap:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem;">🍈 Original Melon Crisps</div>
+                <div style="font-size:0.72rem; color:#9a8a78;">The classic. Melon flavour. In space. Recommended by 1 duck.</div>
+              </div>
+              <span style="font-size:0.65rem; color:#7ec850; border:1px solid rgba(126,200,80,0.3); padding:0.2rem 0.6rem; border-radius:4px;">Duck Favourite</span>
+            </div>
+            <div style="border-top:1px solid #1a1610; padding-top:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem;">🚀 Zero-G Melon Puffs</div>
+                <div style="font-size:0.72rem; color:#9a8a78;">Engineered to not float into the oracle's circuits. Mostly successful.</div>
+              </div>
+              <span style="font-size:0.65rem; color:#ff6b00; border:1px solid rgba(255,107,0,0.3); padding:0.2rem 0.6rem; border-radius:4px;">New</span>
+            </div>
+            <div style="border-top:1px solid #1a1610; padding-top:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem;">💎 Diamond Hands Energy Bar</div>
+                <div style="font-size:0.72rem; color:#9a8a78;">Sustains you through the dip, the other dip, and the third unexpected dip.</div>
+              </div>
+              <span style="font-size:0.65rem; color:#9a8a78; border:1px solid #2a2520; padding:0.2rem 0.6rem; border-radius:4px;">Coming Soon™</span>
+            </div>
+            <div style="border-top:1px solid #1a1610; padding-top:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem;">📉 Regret Flavour Mix</div>
+                <div style="font-size:0.72rem; color:#9a8a78;">Tastes exactly like checking the chart at 3am. Not for everyone.</div>
+              </div>
+              <span style="font-size:0.65rem; color:#ff3b00; border:1px solid rgba(255,59,0,0.3); padding:0.2rem 0.6rem; border-radius:4px;">Discontinued</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="company-features">
+          <span class="feature-pill">🦆 Only Cyberduck-approved snack</span>
+          <span class="feature-pill">🍈 100% melon flavoured</span>
+          <span class="feature-pill">🚀 Zero gravity tested</span>
+          <span class="feature-pill">💎 Sustains diamond hands</span>
+          <span class="feature-pill">📡 Starbrink compatible packaging</span>
+        </div>
+        <div class="company-disclaimer">
+          Space Snäx products are not available for human purchase at this time. They are manufactured exclusively for Tusla Cyberduck™. The duck has not agreed to share. We have not asked. We are afraid to ask.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ORG CHART -->
+  <div class="org-section">
+    <div class="org-title">Organisational Structure</div>
+    <div class="org-chart">
+      <div class="org-root">🍈 Melon Tusk Industries</div>
+      <div class="org-branch">
+        <div class="org-item">├── <strong>🍈 Melon Coin ($MELON)</strong> <em>· flagship · live · do not buy</em></div>
+        <div class="org-item">├── <strong>🦆 Tusla Cyberduck™</strong> <em>· chief oracle officer · quacking continuously</em></div>
+        <div class="org-item">│&nbsp;&nbsp;&nbsp;└── <strong>🍿 Space Snäx</strong> <em>· duck nutrition division · not for humans</em></div>
+        <div class="org-item">├── <strong>🛰️ Starbrink</strong> <em>· satellite internet · signal strength: quack · coming soon™</em></div>
+        <div class="org-item">├── <strong>🤖 Brok.e AI</strong> <em>· financial trauma as a service™ · not financial advice · duck approved</em></div>
+        <div class="org-item">└── <strong>🦝 Anonymous Raccoon</strong> <em>· chief analyst · found behind office · will not leave</em></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  🍈 Melon Tusk Industries · Est. 2:47am, a Tuesday<br>
+  Disrupting industries. Achieving unclear results. Not financial advice.<br>
+  <span style="color:#3a3028;">The duck is not liable. The raccoon is not reachable for comment. Do not buy $MELON.</span>
+</footer>
+
+</body>
+</html>

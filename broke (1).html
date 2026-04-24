@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brok.e AI — Financial Trauma as a Service</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: #0d0d0d;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .topnav { background:#0d0d0d; border-bottom:1px solid #1e1a16; padding:0.8rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+  .topnav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:#e8e0d0; text-decoration:none; letter-spacing:1px; }
+  .topnav-back { font-family:'Space Mono',monospace; font-size:0.75rem; color:#9a8a78; text-decoration:none; letter-spacing:2px; transition:color 0.15s; }
+  .topnav-back:hover { color:#e8e0d0; }
+
+  .warning-bar { background:#ff3b00; color:#fff; font-size:0.75rem; font-weight:700; padding:0.4rem 0; overflow:hidden; white-space:nowrap; }
+  .warning-scroll { display:inline-block; animation:scrollWarn 28s linear infinite; }
+  @keyframes scrollWarn { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+  .container { max-width:720px; margin:0 auto; padding:3rem 1.5rem 6rem; }
+
+  /* HEADER */
+  .page-header { text-align:center; margin-bottom:3rem; }
+  .header-icon { font-size:4rem; display:block; margin-bottom:1rem; animation:glitch 4s ease-in-out infinite; }
+  @keyframes glitch {
+    0%,90%,100% { transform:translate(0); filter:none; }
+    91% { transform:translate(-3px,1px); filter:hue-rotate(90deg); }
+    93% { transform:translate(3px,-1px); filter:hue-rotate(-90deg); }
+    95% { transform:translate(-2px,2px); filter:none; }
+  }
+  .page-header h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:2.8rem; letter-spacing:-2px; margin-bottom:0.3rem; }
+  .page-header h1 span { color:#ff3b00; }
+  .page-header .tagline { font-size:0.78rem; color:#9a8a78; font-style:italic; margin-bottom:0.3rem; }
+  .page-header .powered { font-size:0.62rem; letter-spacing:3px; text-transform:uppercase; color:#3a3028; }
+
+  /* DISCLAIMER CARD */
+  .disclaimer-card {
+    background:#110a08; border:1px solid rgba(255,59,0,0.3);
+    border-radius:12px; padding:1.2rem 1.5rem; margin-bottom:2rem;
+    font-size:0.72rem; color:#9a8a78; line-height:1.7; text-align:center;
+  }
+  .disclaimer-card strong { color:#ff6b00; }
+
+  /* INPUT CARD */
+  .input-card {
+    background:#111009; border:1px solid #2a2520;
+    border-radius:16px; padding:2rem; margin-bottom:1.5rem;
+  }
+
+  .input-label { font-size:0.62rem; letter-spacing:3px; text-transform:uppercase; color:#9a8a78; margin-bottom:0.8rem; display:block; }
+
+  .prompt-suggestions {
+    display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;
+  }
+
+  .suggestion-pill {
+    background:#0d0d0d; border:1px solid #2a2520; border-radius:20px;
+    font-size:0.65rem; color:#9a8a78; padding:0.3rem 0.8rem;
+    cursor:pointer; transition:all 0.15s; letter-spacing:0.5px;
+  }
+  .suggestion-pill:hover { border-color:#ff6b00; color:#ff6b00; }
+
+  .roast-input {
+    background:#0d0d0d; border:1px solid #2a2520; border-radius:8px;
+    color:#e8e0d0; font-family:'Space Mono',monospace; font-size:0.85rem;
+    padding:1rem; width:100%; min-height:120px; resize:vertical;
+    transition:border-color 0.15s; line-height:1.6; margin-bottom:1rem;
+  }
+  .roast-input:focus { outline:none; border-color:#ff3b00; }
+  .roast-input::placeholder { color:#3a3028; }
+
+  .roast-btn {
+    background:linear-gradient(135deg, #ff3b00, #cc2f00);
+    border:none; border-radius:8px; color:#fff;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:1rem;
+    padding:1rem 2rem; cursor:pointer; letter-spacing:2px;
+    transition:all 0.15s; width:100%;
+  }
+  .roast-btn:hover { opacity:0.9; transform:scale(1.01); }
+  .roast-btn:active { transform:scale(0.98); }
+  .roast-btn:disabled { background:#2a2520; color:#5a5040; cursor:not-allowed; transform:none; }
+
+  /* LOADING */
+  .loading-state {
+    text-align:center; padding:2.5rem; display:none;
+    background:#111009; border:1px solid #2a2520; border-radius:16px;
+    margin-bottom:1.5rem;
+  }
+  .loading-state.show { display:block; }
+  .loading-duck { font-size:2.5rem; display:block; margin-bottom:0.8rem; animation:waddle 0.7s ease-in-out infinite; }
+  @keyframes waddle { 0%,100%{transform:rotate(-12deg)} 50%{transform:rotate(12deg)} }
+  .loading-msgs { font-size:0.78rem; color:#9a8a78; font-style:italic; }
+
+  /* RESPONSE CARD */
+  .response-card {
+    background:#111009; border:1px solid #2a2520;
+    border-radius:16px; overflow:hidden; margin-bottom:1.5rem;
+    display:none; animation:fadeIn 0.4s ease;
+  }
+  .response-card.show { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .response-header {
+    background:#0a0907; padding:1rem 1.5rem;
+    display:flex; align-items:center; gap:0.8rem;
+    border-bottom:1px solid #1e1a16;
+  }
+
+  .response-avatar {
+    width:36px; height:36px; border-radius:8px;
+    background:linear-gradient(135deg, #ff3b00, #cc2f00);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; flex-shrink:0;
+  }
+
+  .response-name { font-family:'Syne',sans-serif; font-weight:800; font-size:0.9rem; color:#e8e0d0; }
+  .response-sub { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:#5a5040; }
+
+  .response-status {
+    margin-left:auto; font-size:0.6rem; letter-spacing:2px;
+    text-transform:uppercase; color:#7ec850;
+    display:flex; align-items:center; gap:0.4rem;
+  }
+  .status-dot { width:6px; height:6px; border-radius:50%; background:#7ec850; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .response-body {
+    padding:1.5rem; font-size:0.88rem; color:#b0a090;
+    line-height:1.9; white-space:pre-wrap;
+  }
+
+  .response-footer {
+    padding:0.8rem 1.5rem; background:#0a0907;
+    border-top:1px solid #1e1a16;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:0.5rem;
+  }
+
+  .response-cert { font-size:0.6rem; color:#3a3028; letter-spacing:1px; }
+
+  .copy-btn {
+    background:transparent; border:1px solid #2a2520; border-radius:6px;
+    color:#9a8a78; font-family:'Space Mono',monospace; font-size:0.65rem;
+    padding:0.4rem 1rem; cursor:pointer; letter-spacing:1px; transition:all 0.15s;
+  }
+  .copy-btn:hover { border-color:#9a8a78; color:#e8e0d0; }
+
+  /* PREVIOUS ROASTS */
+  .history-section { margin-top:2rem; }
+  .history-label { font-family:'Syne',sans-serif; font-size:0.62rem; letter-spacing:4px; text-transform:uppercase; color:#3a3028; margin-bottom:1rem; }
+
+  .history-item {
+    background:#0a0907; border:1px solid #1e1a16; border-radius:10px;
+    padding:1rem 1.2rem; margin-bottom:0.6rem; cursor:pointer;
+    transition:border-color 0.15s;
+  }
+  .history-item:hover { border-color:#2a2520; }
+  .history-q { font-size:0.75rem; color:#9a8a78; margin-bottom:0.3rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-a { font-size:0.7rem; color:#5a5040; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-style:italic; }
+
+  /* STATS */
+  .stats-row {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:0; border:1px solid #2a2520; border-radius:10px;
+    overflow:hidden; margin-bottom:2rem;
+  }
+  .stat-cell { padding:1rem; text-align:center; border-right:1px solid #2a2520; }
+  .stat-cell:last-child { border-right:none; }
+  .stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; color:#ff3b00; display:block; margin-bottom:0.2rem; }
+  .stat-lbl { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#5a5040; }
+
+  footer { text-align:center; padding-top:2rem; border-top:1px solid #1e1a16; margin-top:3rem; font-size:0.7rem; color:#9a8a78; line-height:1.9; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-logo">🍈 $MELON</a>
+  <a href="index.html" class="topnav-back">← BACK TO SITE</a>
+</nav>
+
+<div class="warning-bar">
+  <span class="warning-scroll">
+    🤖 BROK.E AI — FINANCIAL TRAUMA AS A SERVICE &nbsp;•&nbsp; NOT FINANCIAL ADVICE &nbsp;•&nbsp; NOT ANY ADVICE &nbsp;•&nbsp; DUCK APPROVED &nbsp;•&nbsp; DO NOT BUY $MELON &nbsp;•&nbsp; ADVANCED REGRET TECHNOLOGY™ &nbsp;•&nbsp; 🤖
+  </span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <span class="header-icon">🤖</span>
+    <h1>Brok<span>.</span>e AI</h1>
+    <p class="tagline">Financial Trauma as a Service™</p>
+    <p class="powered">Powered by Advanced Regret Technology™ · Peer reviewed by Tusla Cyberduck™</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-cell">
+      <span class="stat-val" id="roastCount">0</span>
+      <span class="stat-lbl">Portfolios Roasted</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val">∞</span>
+      <span class="stat-lbl">Regret Generated</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val">0%</span>
+      <span class="stat-lbl">Good Advice Given</span>
+    </div>
+  </div>
+
+  <div class="disclaimer-card">
+    <strong>⚠️ Important:</strong> Brok.e AI is not a financial advisor. It is not a regular advisor. It is an AI trained on vibes, duck quacks, and Advanced Regret Technology™. Do not make financial decisions based on anything it says. The raccoon is not liable. The duck is not licensed.
+  </div>
+
+  <div class="input-card">
+    <span class="input-label">Describe your financial situation / portfolio / recent decisions</span>
+    <div class="prompt-suggestions">
+      <span class="suggestion-pill" onclick="setSuggestion(this)">I bought $MELON</span>
+      <span class="suggestion-pill" onclick="setSuggestion(this)">I bought the dip but it kept dipping</span>
+      <span class="suggestion-pill" onclick="setSuggestion(this)">I sold too early</span>
+      <span class="suggestion-pill" onclick="setSuggestion(this)">I panic sold at 3am</span>
+      <span class="suggestion-pill" onclick="setSuggestion(this)">I put my savings into memecoins</span>
+      <span class="suggestion-pill" onclick="setSuggestion(this)">roast my portfolio</span>
+    </div>
+    <textarea
+      class="roast-input"
+      id="roastInput"
+      placeholder="Tell Brok.e AI about your financial decisions. Be honest. The duck already knows anyway..."
+    ></textarea>
+    <button class="roast-btn" id="roastBtn" onclick="getRoast()">🤖 ANALYSE MY REGRET →</button>
+  </div>
+
+  <div class="loading-state" id="loadingState">
+    <span class="loading-duck">🦆</span>
+    <div class="loading-msgs" id="loadingMsg">Cyberduck™ is processing your financial trauma...</div>
+  </div>
+
+  <div class="response-card" id="responseCard">
+    <div class="response-header">
+      <div class="response-avatar">🤖</div>
+      <div>
+        <div class="response-name">Brok.e AI</div>
+        <div class="response-sub">Financial Trauma as a Service™ · Melon Tusk Industries</div>
+      </div>
+      <div class="response-status">
+        <div class="status-dot"></div>
+        <span>Regretting</span>
+      </div>
+    </div>
+    <div class="response-body" id="responseBody"></div>
+    <div class="response-footer">
+      <span class="response-cert">🦆 Certified by Tusla Cyberduck™ · Not financial advice · Not any advice</span>
+      <button class="copy-btn" onclick="copyResponse()">COPY</button>
+    </div>
+  </div>
+
+  <div class="history-section" id="historySection" style="display:none;">
+    <div class="history-label">Previous Roasts This Session</div>
+    <div id="historyList"></div>
+  </div>
+
+</div>
+
+<footer>
+  🤖 Brok.e AI · by Melon Tusk Industries<br>
+  Financial Trauma as a Service™ · Advanced Regret Technology™<br>
+  <span style="color:#3a3028;">not financial advice · the duck is not licensed · do not buy $MELON</span>
+</footer>
+
+<script>
+const WORKER_URL = 'https://melon-worker.ribbit-the-degen.workers.dev';
+
+let roastCount = 0;
+let sessionHistory = [];
+
+const LOADING_MSGS = [
+  'Cyberduck™ is processing your financial trauma...',
+  'Advanced Regret Technology™ is activating...',
+  'The raccoon is reviewing your decisions...',
+  'Consulting the blockchain oracle...',
+  'Calculating total regret generated...',
+  'The duck is not impressed. Processing anyway...',
+  'Running your portfolio through the shame engine...',
+  'Brok.e AI is having a moment. Please hold...',
+];
+
+function setSuggestion(el) {
+  document.getElementById('roastInput').value = el.textContent;
+  document.getElementById('roastInput').focus();
+}
+
+async function getRoast() {
+  const input = document.getElementById('roastInput').value.trim();
+  if (!input) {
+    document.getElementById('roastInput').style.borderColor = '#ff3b00';
+    setTimeout(() => document.getElementById('roastInput').style.borderColor = '#2a2520', 1500);
+    return;
+  }
+
+  const btn = document.getElementById('roastBtn');
+  btn.disabled = true;
+  btn.textContent = '🤖 ANALYSING...';
+
+  document.getElementById('responseCard').classList.remove('show');
+  const loadingState = document.getElementById('loadingState');
+  loadingState.classList.add('show');
+  document.getElementById('loadingMsg').textContent = LOADING_MSGS[Math.floor(Math.random() * LOADING_MSGS.length)];
+
+  try {
+    const res = await fetch(WORKER_URL + '/roast', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: input}),
+    });
+
+    const data = await res.json();
+    if (data.error && data.error !== 'rate_limited') throw new Error(data.error);
+
+    const response = data.response || 'the duck has no words. this is worse than we thought.';
+
+    loadingState.classList.remove('show');
+    document.getElementById('responseBody').textContent = response;
+    document.getElementById('responseCard').classList.add('show');
+    document.getElementById('responseCard').scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    // Update stats
+    roastCount++;
+    document.getElementById('roastCount').textContent = roastCount;
+
+    // Add to history
+    addToHistory(input, response);
+
+  } catch(e) {
+    loadingState.classList.remove('show');
+    document.getElementById('responseBody').textContent = 'Brok.e AI is temporarily offline. The duck is rebooting. Even the oracle needs a moment sometimes.\n\nTry again shortly.\n\n— Brok.e AI, powered by regret';
+    document.getElementById('responseCard').classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🤖 ANALYSE MY REGRET →';
+}
+
+function addToHistory(q, a) {
+  sessionHistory.unshift({q, a});
+  if (sessionHistory.length > 5) sessionHistory.pop();
+
+  const section = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  section.style.display = 'block';
+  list.innerHTML = '';
+
+  sessionHistory.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="history-q">❓ ${item.q}</div>
+      <div class="history-a">🤖 ${item.a.slice(0, 80)}...</div>
+    `;
+    div.onclick = () => {
+      document.getElementById('responseBody').textContent = item.a;
+      document.getElementById('responseCard').classList.add('show');
+      document.getElementById('responseCard').scrollIntoView({behavior:'smooth'});
+    };
+    list.appendChild(div);
+  });
+}
+
+function copyResponse() {
+  const text = document.getElementById('responseBody').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'COPIED ✓';
+    btn.style.color = '#7ec850';
+    setTimeout(() => { btn.textContent = 'COPY'; btn.style.color = '#9a8a78'; }, 2000);
+  });
+}
+
+document.getElementById('roastInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) getRoast();
+});
+</script>
+</body>
+</html>
